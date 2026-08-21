@@ -2,11 +2,19 @@
 
 A cloud data warehouse for retail sales analytics, provisioned end-to-end with Terraform and loaded into Amazon Redshift. The project covers infrastructure as code, a star-schema dimensional model, bulk loading from S3, and BI exploration with Metabase.
 
+## Tech Stack
+
+![Terraform](https://img.shields.io/badge/Terraform-844FBA?style=flat&logo=terraform&logoColor=white)
+![Amazon Redshift](https://img.shields.io/badge/Amazon%20Redshift-8C4FFF?style=flat&logo=amazonredshift&logoColor=white)
+![Amazon S3](https://img.shields.io/badge/Amazon%20S3-569A31?style=flat&logo=amazons3&logoColor=white)
+![AWS IAM](https://img.shields.io/badge/AWS%20IAM-FF9900?style=flat&logo=amazoniam&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/psql-4169E1?style=flat&logo=postgresql&logoColor=white)
+![Metabase](https://img.shields.io/badge/Metabase-509EE3?style=flat&logo=metabase&logoColor=white)
+
 ## Overview
 
 **Problem solved:** turns flat retail sales CSVs into a queryable star-schema warehouse on Redshift, with the underlying infrastructure fully reproducible from code instead of clicked together in the AWS console.
-
-**Technologies/Services used:** Terraform, Amazon Redshift (RA3, single-node), Amazon S3, AWS IAM, Docker, PostgreSQL client (`psql`), Metabase.
 
 ## Architecture
 
