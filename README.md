@@ -18,36 +18,7 @@ A cloud data warehouse for retail sales analytics, provisioned end-to-end with T
 
 ## Architecture
 
-```mermaid
-graph TD
-    subgraph Local["Local machine"]
-        Container["Docker container<br/>(Terraform + AWS CLI + psql)"]
-    end
-
-    subgraph AWS["AWS — us-east-2"]
-        subgraph VPC["Redshift VPC (10.0.0.0/16)"]
-            Subnet["Redshift Subnet (10.0.1.0/24)"]
-            IGW["Internet Gateway"]
-            RT["Route Table"]
-            SG["Security Group<br/>(port 5439 from allowed_cidr)"]
-            Cluster["Redshift Cluster<br/>ra3.large, 1 node<br/>db: db / schema: dw"]
-        end
-        Role["IAM Role<br/>RedshiftS3AccessRole"]
-        S3["S3 bucket<br/>data/*.csv"]
-    end
-
-    BI["Metabase (BI)"]
-
-    Container -- "terraform apply" --> VPC
-    Container -- "terraform apply" --> Role
-    Container -- "psql -f physical_model.sql" --> Cluster
-    Subnet --> RT --> IGW
-    SG -.-> Cluster
-    Cluster -- "assumes role" --> Role
-    Role -- "S3 read-only" --> S3
-    Cluster -- "COPY ... FROM s3://" --> S3
-    BI -- "SQL over 5439" --> Cluster
-```
+![Architecture diagram: a local Docker container applies Terraform to provision a Redshift VPC (subnet, internet gateway, route table, security group, Redshift cluster) and an IAM role in AWS, then loads the schema via psql; the Redshift cluster assumes the IAM role to read from an S3 bucket via COPY, and Metabase queries the cluster over port 5439](assets/diagrams/architecture.png)
 
 Everything under `terraform/infrastructure` is applied from a disposable Docker container (Terraform + AWS CLI + `psql`), so the workflow needs no local tooling beyond Docker.
 
@@ -77,20 +48,7 @@ All dimension surrogate keys (`*_sk`) are referenced as foreign keys on `dw.fact
 
 ## Data flow
 
-```mermaid
-flowchart LR
-    CSV["data/*.csv<br/>(local)"] -->|"upload"| S3["S3 bucket<br/>s3://bucket/data/"]
-    S3 -->|"COPY ... IAM_ROLE<br/>RedshiftS3AccessRole"| DIM_C["dw.dim_customer"]
-    S3 -->|"COPY"| DIM_L["dw.dim_location"]
-    S3 -->|"COPY"| DIM_P["dw.dim_product"]
-    S3 -->|"COPY"| DIM_T["dw.dim_time"]
-    S3 -->|"COPY"| FACT["dw.fact_sales"]
-    DIM_C --> FACT
-    DIM_L --> FACT
-    DIM_P --> FACT
-    DIM_T --> FACT
-    FACT --> BI["Metabase queries"]
-```
+![Data flow diagram: CSV files are uploaded to an S3 bucket, then COPY commands load the four dimension tables (dw.dim_customer, dw.dim_location, dw.dim_product, dw.dim_time) and dw.fact_sales from S3; the dimension tables feed into dw.fact_sales, which is queried by Metabase](assets/diagrams/data-flow.png)
 
 1. Source CSVs in `data/` are uploaded to an S3 staging bucket under a `data/` prefix.
 2. `physical_model.sql` creates the `dw` schema and the five tables (`CREATE TABLE IF NOT EXISTS`).
@@ -103,6 +61,7 @@ flowchart LR
 ```
 .
 ├── Dockerfile                      # Terraform + AWS CLI + psql image
+├── assets/diagrams/                # Architecture and data flow diagrams (PNG, made with Eraser)
 ├── data/                           # Source CSVs loaded into Redshift (dim_*, fact_sales)
 └── terraform/
     ├── infrastructure/             # VPC, Redshift cluster, IAM role (Terraform)
