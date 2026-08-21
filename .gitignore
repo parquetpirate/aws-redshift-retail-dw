@@ -1,0 +1,15 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+!terraform.tfvars.example
+crash.log
+crash.*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs (not published to the repo)
+/docs
