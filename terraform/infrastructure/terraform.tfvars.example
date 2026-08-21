@@ -1,0 +1,2 @@
+db_master_password = "REPLACE_WITH_A_STRONG_PASSWORD"
+allowed_cidr        = "REPLACE_WITH_YOUR_PUBLIC_IP/32"
